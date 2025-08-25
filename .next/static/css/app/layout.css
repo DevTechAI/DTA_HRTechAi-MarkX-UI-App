@@ -802,8 +802,14 @@ video {
 .mb-4 {
   margin-bottom: 1rem;
 }
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
 .ml-1 {
   margin-left: 0.25rem;
+}
+.ml-2 {
+  margin-left: 0.5rem;
 }
 .ml-auto {
   margin-left: auto;
@@ -828,6 +834,9 @@ video {
 }
 .mt-4 {
   margin-top: 1rem;
+}
+.mt-6 {
+  margin-top: 1.5rem;
 }
 .mt-auto {
   margin-top: auto;
@@ -880,9 +889,6 @@ video {
 }
 .h-14 {
   height: 3.5rem;
-}
-.h-16 {
-  height: 4rem;
 }
 .h-2 {
   height: 0.5rem;
@@ -944,6 +950,9 @@ video {
 .h-svh {
   height: 100svh;
 }
+.h-16 {
+  height: 4rem;
+}
 .max-h-96 {
   max-height: 24rem;
 }
@@ -955,6 +964,9 @@ video {
 }
 .min-h-0 {
   min-height: 0px;
+}
+.min-h-8 {
+  min-height: 2rem;
 }
 .min-h-\[100px\] {
   min-height: 100px;
@@ -985,9 +997,6 @@ video {
 }
 .w-14 {
   width: 3.5rem;
-}
-.w-16 {
-  width: 4rem;
 }
 .w-2 {
   width: 0.5rem;
@@ -1065,11 +1074,17 @@ video {
 .w-px {
   width: 1px;
 }
+.w-16 {
+  width: 4rem;
+}
 .min-w-0 {
   min-width: 0px;
 }
 .min-w-5 {
   min-width: 1.25rem;
+}
+.min-w-8 {
+  min-width: 2rem;
 }
 .min-w-\[12rem\] {
   min-width: 12rem;
@@ -1101,6 +1116,9 @@ video {
 }
 .flex-1 {
   flex: 1 1 0%;
+}
+.flex-shrink-0 {
+  flex-shrink: 0;
 }
 .shrink-0 {
   flex-shrink: 0;
@@ -1338,6 +1356,11 @@ video {
   margin-top: calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(1.5rem * var(--tw-space-y-reverse));
 }
+.space-y-8 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(2rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(2rem * var(--tw-space-y-reverse));
+}
 .overflow-auto {
   overflow: auto;
 }
@@ -1524,6 +1547,9 @@ video {
 .bg-secondary {
   background-color: hsl(var(--secondary));
 }
+.bg-secondary\/50 {
+  background-color: hsl(var(--secondary) / 0.5);
+}
 .bg-sidebar {
   background-color: hsl(var(--sidebar-background));
 }
@@ -1597,6 +1623,10 @@ video {
   padding-top: 0.375rem;
   padding-bottom: 0.375rem;
 }
+.py-12 {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
 .py-2 {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
@@ -1612,6 +1642,9 @@ video {
 .py-6 {
   padding-top: 1.5rem;
   padding-bottom: 1.5rem;
+}
+.pb-12 {
+  padding-bottom: 3rem;
 }
 .pb-3 {
   padding-bottom: 0.75rem;
@@ -1671,13 +1704,13 @@ video {
   font-size: 1.5rem;
   line-height: 2rem;
 }
-.text-3xl {
-  font-size: 1.875rem;
-  line-height: 2.25rem;
-}
 .text-4xl {
   font-size: 2.25rem;
   line-height: 2.5rem;
+}
+.text-5xl {
+  font-size: 3rem;
+  line-height: 1;
 }
 .text-6xl {
   font-size: 3.75rem;
@@ -1705,6 +1738,10 @@ video {
 .text-xs {
   font-size: 0.75rem;
   line-height: 1rem;
+}
+.text-3xl {
+  font-size: 1.875rem;
+  line-height: 2.25rem;
 }
 .font-bold {
   font-weight: 700;
@@ -1744,6 +1781,10 @@ video {
 .text-amber-600 {
   --tw-text-opacity: 1;
   color: rgb(217 119 6 / var(--tw-text-opacity, 1));
+}
+.text-black {
+  --tw-text-opacity: 1;
+  color: rgb(0 0 0 / var(--tw-text-opacity, 1));
 }
 .text-blue-600 {
   --tw-text-opacity: 1;
