@@ -26,15 +26,22 @@ const eslintConfig = [
     },
   },
   {
-    // Ignore files that commonly have module assignments
+    // Ignore files that commonly have module assignments and build files
     ignores: [
       "node_modules/**",
-      ".next/**", 
+      ".next/**",
       "dist/**",
       "build/**",
+      "out/**",
       "*.config.js",
       "*.config.mjs",
       "*.config.ts",
+      "next.config.js",
+      "tailwind.config.js",
+      "postcss.config.js",
+      "**/*.d.ts",
+      ".env*",
+      "*.log",
     ],
   },
 ];
