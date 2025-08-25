@@ -10,7 +10,7 @@ const nextConfig = {
   experimental: {
     // This improves App Router performance
     serverMinification: true,
-  }
-}
+  },
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
