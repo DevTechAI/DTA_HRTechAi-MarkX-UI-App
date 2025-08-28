@@ -5,14 +5,31 @@ import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { useState } from "react";
+import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 type Expense = {
   id: string;
@@ -25,11 +42,26 @@ type Expense = {
 
 export default function ExpensesPage() {
   const { toast } = useToast();
+  const [isPageLoading, setIsPageLoading] = useState(true);
   const [date, setDate] = useState<Date>();
   const [category, setCategory] = useState<string>("travel");
   const [amount, setAmount] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [expenses, setExpenses] = useState<Expense[]>([]);
+
+  // Simulate page loading delay
+  useEffect(() => {
+    const loadPageData = async () => {
+      setIsPageLoading(true);
+
+      // Simulate loading delay (1.1 seconds)
+      await new Promise((resolve) => setTimeout(resolve, 1100));
+
+      setIsPageLoading(false);
+    };
+
+    loadPageData();
+  }, []);
 
   const handleSubmit = () => {
     if (!date || !amount || !description) {
@@ -62,6 +94,18 @@ export default function ExpensesPage() {
     setAmount("");
     setDescription("");
   };
+
+  // Show loading spinner while page is loading
+  if (isPageLoading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-muted-foreground">Loading Claims...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -156,7 +200,9 @@ export default function ExpensesPage() {
         </CardHeader>
         <CardContent>
           {expenses.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No expense claims yet. Submit one to get started.</p>
+            <p className="text-sm text-muted-foreground">
+              No expense claims yet. Submit one to get started.
+            </p>
           ) : (
             <div className="overflow-x-auto">
               <Table>
@@ -173,10 +219,14 @@ export default function ExpensesPage() {
                   {expenses.map((expense) => (
                     <TableRow key={expense.id}>
                       <TableCell>{format(expense.date, "PP")}</TableCell>
-                      <TableCell className="capitalize">{expense.category}</TableCell>
+                      <TableCell className="capitalize">
+                        {expense.category}
+                      </TableCell>
                       <TableCell>${expense.amount.toFixed(2)}</TableCell>
                       <TableCell>{expense.description}</TableCell>
-                      <TableCell className="capitalize">{expense.status}</TableCell>
+                      <TableCell className="capitalize">
+                        {expense.status}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
