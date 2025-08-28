@@ -7,9 +7,17 @@ import { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 
 export const metadata: Metadata = {
-  title: "HR Portal",
-  description: "Internal HR Management System",
+  title: {
+    default: "MarkX",
+    template: "%s | MarkX",
+  },
+  description: "MarkX",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/DevTechAI_Logo_June2025.png",
+    shortcut: "/DevTechAI_Logo_June2025.png",
+    apple: "/DevTechAI_Logo_June2025.png",
+  },
 };
 
 export default function RootLayout({
