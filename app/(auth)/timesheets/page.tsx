@@ -6,8 +6,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { addWeeks, eachDayOfInterval, endOfWeek, format, startOfWeek, subWeeks } from "date-fns";
-import { ChevronLeft, ChevronRight, Lock, Unlock } from "lucide-react";
+import {
+  addWeeks,
+  eachDayOfInterval,
+  endOfWeek,
+  format,
+  startOfWeek,
+  subWeeks,
+} from "date-fns";
+import { ChevronLeft, ChevronRight, Loader2, Lock, Unlock } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 type DailyHours = {
@@ -37,8 +44,24 @@ type WeeklyAvailability = {
   updatedAt: Date;
 };
 
-const DAYS: (keyof DailyHours)[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-const DAY_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const DAYS: (keyof DailyHours)[] = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
+];
+const DAY_LABELS = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
 
 // Validation constants
 const MAX_DAILY_HOURS = 16;
@@ -48,11 +71,20 @@ export default function WeeklyAvailabilityPage() {
   const { toast } = useToast();
   const [currentWeek, setCurrentWeek] = useState<Date>(new Date());
   const [weeklyData, setWeeklyData] = useState<WeeklyAvailability | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isPageLoading, setIsPageLoading] = useState(true);
 
-  const weekStart = useMemo(() => startOfWeek(currentWeek, { weekStartsOn: 1 }), [currentWeek]);
-  const weekEnd = useMemo(() => endOfWeek(currentWeek, { weekStartsOn: 1 }), [currentWeek]);
-  const weekDays = useMemo(() => eachDayOfInterval({ start: weekStart, end: weekEnd }), [weekStart, weekEnd]);
+  const weekStart = useMemo(
+    () => startOfWeek(currentWeek, { weekStartsOn: 1 }),
+    [currentWeek]
+  );
+  const weekEnd = useMemo(
+    () => endOfWeek(currentWeek, { weekStartsOn: 1 }),
+    [currentWeek]
+  );
+  const weekDays = useMemo(
+    () => eachDayOfInterval({ start: weekStart, end: weekEnd }),
+    [weekStart, weekEnd]
+  );
 
   // Initialize empty weekly data
   const initializeWeeklyData = useCallback((): WeeklyAvailability => {
@@ -67,7 +99,7 @@ export default function WeeklyAvailabilityPage() {
     };
 
     return {
-      id: `week-${format(weekStart, 'yyyy-MM-dd')}`,
+      id: `week-${format(weekStart, "yyyy-MM-dd")}`,
       weekStartDate: weekStart,
       weekEndDate: weekEnd,
       isLocked: false,
@@ -84,33 +116,47 @@ export default function WeeklyAvailabilityPage() {
 
   // Load weekly data (from localStorage for now)
   useEffect(() => {
-    const weekKey = `weekly-availability-${format(weekStart, 'yyyy-MM-dd')}`;
-    const savedData = localStorage.getItem(weekKey);
-    
-    if (savedData) {
-      const parsed = JSON.parse(savedData);
-      // Convert date strings back to Date objects
-      parsed.weekStartDate = new Date(parsed.weekStartDate);
-      parsed.weekEndDate = new Date(parsed.weekEndDate);
-      if (parsed.lockedAt) parsed.lockedAt = new Date(parsed.lockedAt);
-      parsed.createdAt = new Date(parsed.createdAt);
-      parsed.updatedAt = new Date(parsed.updatedAt);
-      setWeeklyData(parsed);
-    } else {
-      setWeeklyData(initializeWeeklyData());
-    }
+    const loadPageData = async () => {
+      setIsPageLoading(true);
+
+      // Simulate loading delay (1.3 seconds)
+      await new Promise((resolve) => setTimeout(resolve, 1300));
+
+      const weekKey = `weekly-availability-${format(weekStart, "yyyy-MM-dd")}`;
+      const savedData = localStorage.getItem(weekKey);
+
+      if (savedData) {
+        const parsed = JSON.parse(savedData);
+        // Convert date strings back to Date objects
+        parsed.weekStartDate = new Date(parsed.weekStartDate);
+        parsed.weekEndDate = new Date(parsed.weekEndDate);
+        if (parsed.lockedAt) parsed.lockedAt = new Date(parsed.lockedAt);
+        parsed.createdAt = new Date(parsed.createdAt);
+        parsed.updatedAt = new Date(parsed.updatedAt);
+        setWeeklyData(parsed);
+      } else {
+        setWeeklyData(initializeWeeklyData());
+      }
+
+      setIsPageLoading(false);
+    };
+
+    loadPageData();
   }, [weekStart, initializeWeeklyData]);
 
   // Save weekly data to localStorage
-  const saveWeeklyData = useCallback((data: WeeklyAvailability) => {
-    const weekKey = `weekly-availability-${format(weekStart, 'yyyy-MM-dd')}`;
-    const updatedData = {
-      ...data,
-      updatedAt: new Date(),
-    };
-    localStorage.setItem(weekKey, JSON.stringify(updatedData));
-    setWeeklyData(updatedData);
-  }, [weekStart]);
+  const saveWeeklyData = useCallback(
+    (data: WeeklyAvailability) => {
+      const weekKey = `weekly-availability-${format(weekStart, "yyyy-MM-dd")}`;
+      const updatedData = {
+        ...data,
+        updatedAt: new Date(),
+      };
+      localStorage.setItem(weekKey, JSON.stringify(updatedData));
+      setWeeklyData(updatedData);
+    },
+    [weekStart]
+  );
 
   // Calculate totals
   const calculateTotals = useCallback((hours: DailyHours): number => {
@@ -118,83 +164,89 @@ export default function WeeklyAvailabilityPage() {
   }, []);
 
   // Update planned hours
-  const updatePlannedHours = useCallback((day: keyof DailyHours, hours: number) => {
-    if (!weeklyData || weeklyData.isLocked) return;
+  const updatePlannedHours = useCallback(
+    (day: keyof DailyHours, hours: number) => {
+      if (!weeklyData || weeklyData.isLocked) return;
 
-    // Validation
-    if (hours < 0) {
-      toast({
-        title: "Invalid Input",
-        description: "Hours cannot be negative",
-        variant: "destructive",
-      });
-      return;
-    }
+      // Validation
+      if (hours < 0) {
+        toast({
+          title: "Invalid Input",
+          description: "Hours cannot be negative",
+          variant: "destructive",
+        });
+        return;
+      }
 
-    if (hours > MAX_DAILY_HOURS) {
-      toast({
-        title: "Maximum Exceeded",
-        description: `Daily hours cannot exceed ${MAX_DAILY_HOURS}`,
-        variant: "destructive",
-      });
-      return;
-    }
+      if (hours > MAX_DAILY_HOURS) {
+        toast({
+          title: "Maximum Exceeded",
+          description: `Daily hours cannot exceed ${MAX_DAILY_HOURS}`,
+          variant: "destructive",
+        });
+        return;
+      }
 
-    const newPlannedHours = { ...weeklyData.plannedHours, [day]: hours };
-    const newTotal = calculateTotals(newPlannedHours);
+      const newPlannedHours = { ...weeklyData.plannedHours, [day]: hours };
+      const newTotal = calculateTotals(newPlannedHours);
 
-    if (newTotal > MAX_WEEKLY_HOURS) {
-      toast({
-        title: "Weekly Limit Exceeded",
-        description: `Total weekly hours cannot exceed ${MAX_WEEKLY_HOURS}`,
-        variant: "destructive",
-      });
-      return;
-    }
+      if (newTotal > MAX_WEEKLY_HOURS) {
+        toast({
+          title: "Weekly Limit Exceeded",
+          description: `Total weekly hours cannot exceed ${MAX_WEEKLY_HOURS}`,
+          variant: "destructive",
+        });
+        return;
+      }
 
-    const updatedData = {
-      ...weeklyData,
-      plannedHours: newPlannedHours,
-      totalPlannedHours: newTotal,
-    };
+      const updatedData = {
+        ...weeklyData,
+        plannedHours: newPlannedHours,
+        totalPlannedHours: newTotal,
+      };
 
-    saveWeeklyData(updatedData);
-  }, [weeklyData, calculateTotals, saveWeeklyData, toast]);
+      saveWeeklyData(updatedData);
+    },
+    [weeklyData, calculateTotals, saveWeeklyData, toast]
+  );
 
   // Update actual hours
-  const updateActualHours = useCallback((day: keyof DailyHours, hours: number) => {
-    if (!weeklyData) return;
+  const updateActualHours = useCallback(
+    (day: keyof DailyHours, hours: number) => {
+      if (!weeklyData) return;
 
-    // Validation
-    if (hours < 0) {
-      toast({
-        title: "Invalid Input",
-        description: "Hours cannot be negative",
-        variant: "destructive",
-      });
-      return;
-    }
+      // Validation
+      if (hours < 0) {
+        toast({
+          title: "Invalid Input",
+          description: "Hours cannot be negative",
+          variant: "destructive",
+        });
+        return;
+      }
 
-    if (hours > MAX_DAILY_HOURS) {
-      toast({
-        title: "Maximum Exceeded",
-        description: `Daily hours cannot exceed ${MAX_DAILY_HOURS}`,
-        variant: "destructive",
-      });
-      return;
-    }
+      if (hours > MAX_DAILY_HOURS) {
+        toast({
+          title: "Maximum Exceeded",
+          description: `Daily hours cannot exceed ${MAX_DAILY_HOURS}`,
+          variant: "destructive",
+        });
+        return;
+      }
 
-    const newActualHours = { ...weeklyData.actualHours, [day]: hours };
-    const newTotal = calculateTotals(newActualHours);
+      const newActualHours = { ...weeklyData.actualHours, [day]: hours };
+      const newTotal = calculateTotals(newActualHours);
 
-    const updatedData = {
-      ...weeklyData,
-      actualHours: newActualHours,
-      totalActualHours: newTotal,
-    };
+      const updatedData = {
+        ...weeklyData,
+        actualHours: newActualHours,
+        totalActualHours: newTotal,
+      };
 
-    saveWeeklyData(updatedData);
-  }, [weeklyData, calculateTotals, saveWeeklyData, toast]);
+      saveWeeklyData(updatedData);
+    },
+    [weeklyData, calculateTotals, saveWeeklyData, toast]
+  );
 
   // Lock/unlock planned hours
   const toggleLock = useCallback(() => {
@@ -207,31 +259,64 @@ export default function WeeklyAvailabilityPage() {
     };
 
     saveWeeklyData(updatedData);
-    
+
     toast({
-      title: updatedData.isLocked ? "Planned Hours Locked" : "Planned Hours Unlocked",
-      description: updatedData.isLocked ? "Planned hours can no longer be edited" : "You can now edit planned hours",
+      title: updatedData.isLocked
+        ? "Planned Hours Locked"
+        : "Planned Hours Unlocked",
+      description: updatedData.isLocked
+        ? "Planned hours can no longer be edited"
+        : "You can now edit planned hours",
     });
   }, [weeklyData, saveWeeklyData, toast]);
 
   // Update meeting confirmations
-  const updateDSUConfirmation = useCallback((confirmed: boolean) => {
-    if (!weeklyData) return;
-    saveWeeklyData({ ...weeklyData, dsuConfirmation: confirmed });
-  }, [weeklyData, saveWeeklyData]);
+  const updateDSUConfirmation = useCallback(
+    (confirmed: boolean) => {
+      if (!weeklyData) return;
+      saveWeeklyData({ ...weeklyData, dsuConfirmation: confirmed });
+    },
+    [weeklyData, saveWeeklyData]
+  );
 
-  const updateSundayMeetupConfirmation = useCallback((confirmed: boolean) => {
-    if (!weeklyData) return;
-    saveWeeklyData({ ...weeklyData, sundayMeetupConfirmation: confirmed });
-  }, [weeklyData, saveWeeklyData]);
+  const updateSundayMeetupConfirmation = useCallback(
+    (confirmed: boolean) => {
+      if (!weeklyData) return;
+      saveWeeklyData({ ...weeklyData, sundayMeetupConfirmation: confirmed });
+    },
+    [weeklyData, saveWeeklyData]
+  );
 
   // Navigate weeks
-  const navigateWeek = useCallback((direction: 'next' | 'prev') => {
-    setCurrentWeek(direction === 'next' ? addWeeks(currentWeek, 1) : subWeeks(currentWeek, 1));
-  }, [currentWeek]);
+  const navigateWeek = useCallback(
+    (direction: "next" | "prev") => {
+      setCurrentWeek(
+        direction === "next"
+          ? addWeeks(currentWeek, 1)
+          : subWeeks(currentWeek, 1)
+      );
+    },
+    [currentWeek]
+  );
+
+  // Show loading spinner while page is loading
+  if (isPageLoading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-muted-foreground">
+            Loading Weekly Availability...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (!weeklyData) {
-    return <div className="flex items-center justify-center h-64">Loading...</div>;
+    return (
+      <div className="flex h-64 items-center justify-center">Loading...</div>
+    );
   }
 
   return (
@@ -243,7 +328,7 @@ export default function WeeklyAvailabilityPage() {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => navigateWeek('prev')}
+            onClick={() => navigateWeek("prev")}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -253,7 +338,7 @@ export default function WeeklyAvailabilityPage() {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => navigateWeek('next')}
+            onClick={() => navigateWeek("next")}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -291,7 +376,7 @@ export default function WeeklyAvailabilityPage() {
           </Button>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-7">
             {DAYS.map((day, index) => (
               <div key={day} className="space-y-2">
                 <Label className="text-sm font-medium">
@@ -307,7 +392,9 @@ export default function WeeklyAvailabilityPage() {
                   max={MAX_DAILY_HOURS}
                   step="0.5"
                   value={weeklyData.plannedHours[day] || ""}
-                  onChange={(e) => updatePlannedHours(day, parseFloat(e.target.value) || 0)}
+                  onChange={(e) =>
+                    updatePlannedHours(day, parseFloat(e.target.value) || 0)
+                  }
                   disabled={weeklyData.isLocked}
                   className={weeklyData.isLocked ? "bg-muted" : ""}
                   placeholder="0"
@@ -315,10 +402,12 @@ export default function WeeklyAvailabilityPage() {
               </div>
             ))}
           </div>
-          <div className="mt-4 p-3 bg-muted/50 rounded-md">
+          <div className="mt-4 rounded-md bg-muted/50 p-3">
             <div className="flex justify-between text-sm">
               <span>Total Planned Hours:</span>
-              <span className="font-semibold">{weeklyData.totalPlannedHours}h</span>
+              <span className="font-semibold">
+                {weeklyData.totalPlannedHours}h
+              </span>
             </div>
           </div>
         </CardContent>
@@ -330,7 +419,7 @@ export default function WeeklyAvailabilityPage() {
           <CardTitle>Actual Hours</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-7">
             {DAYS.map((day, index) => (
               <div key={day} className="space-y-2">
                 <Label className="text-sm font-medium">
@@ -346,23 +435,27 @@ export default function WeeklyAvailabilityPage() {
                   max={MAX_DAILY_HOURS}
                   step="0.5"
                   value={weeklyData.actualHours[day] || ""}
-                  onChange={(e) => updateActualHours(day, parseFloat(e.target.value) || 0)}
+                  onChange={(e) =>
+                    updateActualHours(day, parseFloat(e.target.value) || 0)
+                  }
                   placeholder="0"
                 />
               </div>
             ))}
           </div>
-          <div className="mt-4 p-3 bg-muted/50 rounded-md">
+          <div className="mt-4 rounded-md bg-muted/50 p-3">
             <div className="flex justify-between text-sm">
               <span>Total Actual Hours:</span>
-              <span className="font-semibold">{weeklyData.totalActualHours}h</span>
+              <span className="font-semibold">
+                {weeklyData.totalActualHours}h
+              </span>
             </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Meeting Confirmations */}
-      <div className="grid md:grid-cols-2 gap-4">
+      <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>DSU Meeting Confirmation</CardTitle>
@@ -373,7 +466,9 @@ export default function WeeklyAvailabilityPage() {
                 Daily Stand-up meeting at 9:00 PM every working day
               </p>
               <div className="flex items-center justify-between">
-                <Label htmlFor="dsu-switch">I will attend DSU meetings this week</Label>
+                <Label htmlFor="dsu-switch">
+                  I will attend DSU meetings this week
+                </Label>
                 <Switch
                   id="dsu-switch"
                   checked={weeklyData.dsuConfirmation}
@@ -381,7 +476,8 @@ export default function WeeklyAvailabilityPage() {
                 />
               </div>
               <div className="text-xs text-muted-foreground">
-                Status: {weeklyData.dsuConfirmation ? "✅ Confirmed" : "⏳ Pending"}
+                Status:{" "}
+                {weeklyData.dsuConfirmation ? "✅ Confirmed" : "⏳ Pending"}
               </div>
             </div>
           </CardContent>
@@ -397,7 +493,9 @@ export default function WeeklyAvailabilityPage() {
                 Weekly offline meetup on {format(weekDays[6], "EEEE, MMM d")}
               </p>
               <div className="flex items-center justify-between">
-                <Label htmlFor="sunday-switch">I can attend this Sunday's meetup</Label>
+                <Label htmlFor="sunday-switch">
+                  I can attend this Sunday&apos;s meetup
+                </Label>
                 <Switch
                   id="sunday-switch"
                   checked={weeklyData.sundayMeetupConfirmation}
@@ -405,7 +503,10 @@ export default function WeeklyAvailabilityPage() {
                 />
               </div>
               <div className="text-xs text-muted-foreground">
-                Status: {weeklyData.sundayMeetupConfirmation ? "✅ Available" : "❌ Not Available"}
+                Status:{" "}
+                {weeklyData.sundayMeetupConfirmation
+                  ? "✅ Available"
+                  : "❌ Not Available"}
               </div>
             </div>
           </CardContent>

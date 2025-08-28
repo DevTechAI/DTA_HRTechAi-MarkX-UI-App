@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { DateTimeDisplay } from "@/components/ui/DateTimeDisplay";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useSetupMockUser } from "@/lib/mock-auth";
-import Link from "next/link";
 import { useEffect } from "react";
 
 export default function AuthLayout({
@@ -17,38 +16,34 @@ export default function AuthLayout({
 }) {
   // Setup mock user for development purposes
   const setupUser = useSetupMockUser();
-  
+
   useEffect(() => {
     setupUser();
   }, [setupUser]);
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
+      <div className="flex min-h-screen w-full bg-background">
         <AppSidebar />
-        <div className="flex-1 flex flex-col">
-          <header className="h-14 border-b flex items-center justify-between px-3">
+        <div className="flex flex-1 flex-col">
+          <header className="flex h-14 items-center justify-between border-b px-3">
             <div className="flex items-center gap-2">
               <SidebarTrigger />
-              <Link href="/home" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <img
-                  src="/lovable-uploads/8988fb1e-243f-488b-b480-40f062a17c5a.png"
-                  alt="MarkX logo"
-                  className="h-6 w-6"
-                />
-                <h1 className="text-lg font-semibold">MarkX</h1>
-              </Link>
             </div>
             <div className="flex items-center gap-4">
               <DateTimeDisplay />
-              <Button variant="secondary" size="sm" className="whitespace-nowrap">Help</Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="whitespace-nowrap"
+              >
+                Help
+              </Button>
               <ThemeToggle />
               <UserProfileMenu />
             </div>
           </header>
-          <main className="flex-1 p-4 container animate-enter">
-            {children}
-          </main>
+          <main className="container flex-1 animate-enter p-4">{children}</main>
         </div>
       </div>
     </SidebarProvider>

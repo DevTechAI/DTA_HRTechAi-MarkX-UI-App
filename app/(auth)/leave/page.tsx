@@ -5,21 +5,46 @@ import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { differenceInCalendarDays, format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { DateRange } from "react-day-picker";
 
 export default function LeavePage() {
   const { toast } = useToast();
+  const [isPageLoading, setIsPageLoading] = useState(true);
   const [leaveType, setLeaveType] = useState<string>("paid");
   const [range, setRange] = useState<DateRange | undefined>();
   const [days, setDays] = useState<number>(0);
   const [reason, setReason] = useState<string>("");
+
+  // Simulate page loading delay
+  useEffect(() => {
+    const loadPageData = async () => {
+      setIsPageLoading(true);
+
+      // Simulate loading delay (1.2 seconds)
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+
+      setIsPageLoading(false);
+    };
+
+    loadPageData();
+  }, []);
 
   useEffect(() => {
     if (range?.from && range?.to) {
@@ -41,6 +66,18 @@ export default function LeavePage() {
       description: `${leaveType} • ${days} day(s) • ${prettyRange}`,
     });
   };
+
+  // Show loading spinner while page is loading
+  if (isPageLoading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-muted-foreground">Loading Leaves...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -80,12 +117,14 @@ export default function LeavePage() {
                     selected={range}
                     onSelect={setRange}
                     numberOfMonths={2}
-                    className="p-3 pointer-events-auto"
+                    className="pointer-events-auto p-3"
                     initialFocus
                   />
                 </PopoverContent>
               </Popover>
-              <p className="text-xs text-muted-foreground">Select start and end dates.</p>
+              <p className="text-xs text-muted-foreground">
+                Select start and end dates.
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -113,12 +152,12 @@ export default function LeavePage() {
 
           <div className="flex gap-2">
             <Button onClick={onSubmit}>Submit Request</Button>
-            <Button 
-              variant="secondary" 
-              onClick={() => { 
-                setRange(undefined); 
-                setDays(0); 
-                setReason(""); 
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setRange(undefined);
+                setDays(0);
+                setReason("");
               }}
             >
               Cancel
